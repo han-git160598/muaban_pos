@@ -1,0 +1,9 @@
+body{background-color: yellow;}
+#big{width: 600px; margin: auto}
+#left{width: 30%; float: left; background-color: seagreen;}
+#right{width: 70%; float: left; background-color: turquoise;}
+#boxtitle{border: solid 1px black; padding:  5px; text-align: center;}
+#boxcontent{border: solid 1px black; padding:  5px; border-top: none; }
+#hi{text-align: right;}
+#listmess{height: 200px; background-color: blanchedalmond;}
+#auto{border: solid 3px black; padding:  5px; border-top: none; }
