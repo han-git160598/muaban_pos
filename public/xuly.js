@@ -1,4 +1,4 @@
-var socket = io("http://localhost:3000/");
+var socket = io("https://demochatsocket.herokuapp.com/");
 $("#dangky").click( function(){
    var name1=  $("#name").val()
    console.log(name1);

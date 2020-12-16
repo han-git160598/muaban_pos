@@ -9,7 +9,7 @@ app.set("views", "./views");
 
 var server = require("http").Server(app);
 var io =require("socket.io")(server);
-server.listen('3000');
+server.listen(process.env.PORT || 3000);
  var manguser=[]; var mang=[];
 io.on("connection", function(socket){
 
@@ -58,7 +58,7 @@ io.on("connection", function(socket){
     var dem = 0;
     var requestLoop = setInterval(function(){
         request({
-            url: "http://localhost:3000/",
+            url: "https://demochatsocket.herokuapp.com/",
             method: "GET",
             timeout: 20000,
             followRedirect: true,
