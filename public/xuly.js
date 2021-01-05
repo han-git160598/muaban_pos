@@ -1,49 +1,47 @@
-var socket = io("https://demochatsocket.herokuapp.com/");
-$("#dangky").click( function(){
-   var name1=  $("#name").val()
-   console.log(name1);
-   // socket.emit('clent-dang-ky',name1);
-   socket.emit('create', name1);
+ var socket = io("localhost:3000/");
+//var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
+// var socket =("localhost:3000/",
+//     {
+//     transports: ['websocket'],
+//     allowUpgrades: false,
+//     pingInterval: 2500, // default - 25000
+//     pingTimeout: 6000, // default - 60000
+
+//     });
+$(document).ready(function() {
+    const a = { id_business: '2'};
+   socket.emit('join-store',a);
+  
 });
-socket.on("event", function(data){
-   // alert(data);
-$("#test").val(data);
- $("#loginform").hide(3000);
-$("#chatform").show(2000);
+function open_table()
+{  
+    var data = { id_business: '2', id_floor: '2', id_order: '45', id_table: '5' }
+
+    socket.emit('reload-table-detail',data);
+}
+socket.on('reloaded-table-detail',function(data)
+{
+console.log(data);
 });
-$('#btnmessage').click(function(){
-    var massage=  $("#message").val();
-    var a=$("#test").val();
-    console.log(a);
-    socket.emit("send-massage",massage,a);
+socket.on("connected", function(data)
+{
+ $('#tesst').html(data);
 });
-socket.on("server-massage", function (data){
-    //var currenuser=  $("#currenuser").val()
-    //if(currenuser == room){
-    $("#listmess").append("<div class='user'>"+ data + "</div>"); 
+socket.on('opened-table',function(data){
+console.log(data);
 });
 
-socket.on("server-dk-faild",function(){
-    alert('faild!!!!!!');
-});
-socket.on("server-dk-sucsses",function(data){
- $("#currenuser").html(data);
- $("#loginform").hide(3000);
-$("#chatform").show(2000);
-});
-socket.on("server-dk-all", function(data){
-    data.forEach(function(i){
-        $("#boxcontent").append("<div class='user'>"+ i + "</div>");   
-    });
-});
-socket.on("auto-timer", function(data){
-        $("#auto").append("<div class='a'>"+ data + "</div>");   
+socket.on('list-ordered',function(data){
+    console.log(data);
 });
 
+function disable_product()
+{
+    // id_business:1 , id_product: 2
+    socket.emit('disable-product',1);
+}
 
 
-$(document).ready(function(){
-    $("#loginform").show();
-    $("#chatform").hide();
+socket.on('disabled-product',function(data){
+console.log(data);
 });
-

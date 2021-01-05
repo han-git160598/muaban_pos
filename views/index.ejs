@@ -1,53 +1,25 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>DEMO</title>
-
-    <link rel="stylesheet" type="text/css" href="layout.css">
-</head>
-<body> 
-<div id="big">
-<div id="loginform"></div>
-<h3>Ten phong</h3>
-<input type="text" id="name"  placeholder="ten phong">
-<input type="button" id="dangky" value="Vo phong">
-<div id="chatform">
-<div id="left"> a
-    <div id="boxtitle">user online</div>
-    <div id="boxcontent">
-       
-
-
-
-    </div>
-    <div id="auto"></div>
-</div>
-
-<div id="right"> 
-    <div id="hi">
-        hello <span id="currenuser" value="1"></span>
-        <input type="text" id="test" >
-        <input type="button" id="btnlogout" value="logout">
-    </div>
-    <div id="listmess"> </div>
-        <input type="text" id="message">
-        <input type="button" id="btnmessage" value="send">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Demo tào lao</title>     
+        <link rel="stylesheet" type="text/css" href="layout.css">
+        
+    </head>
+    <body>
+      <div id="ban"></div>
+      <button type="btn" onclick="open_table()">mở bàn</button>
+      <button type="btn" onclick="disable_product()">Disable product</button>
+      <div id="tesst"></div>
    
-
-</div>
-
-
-</div>
-</div>
-
-</div>
-</body>
+    </body>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://demochatsocket.herokuapp.com/socket.io/socket.io.js"></script>
+<script src="socket.io/socket.io.js"></script>
 <script src="xuly.js"></script>
 <script>
-$(document).ready(function(){
 
-});
+
+
 </script>
 </html>
