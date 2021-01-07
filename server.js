@@ -40,41 +40,136 @@ io.on("connection", function(socket){
   console.log(param);
     axios.post(url, data2, { headers,
     }).then((res) => {
+
       var a= [];
       let list = {type_reload:'open_table', table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
       list.table_order.push(res.data.data[0]);
   //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
-
     console.log(list);
     io.in(room).emit('reloaded-table-detail',list);
     }).catch((error) => {
   }); 
-
   ///bếp  
-
     if(param.type_manager == 'eat-in')
     {
       var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data);
+      console.log(res.data.data[0]);
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-eat-in',res.data);
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
       var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data);
+      console.log(res.data.data[0]);
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-carry-out',res.data);
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
     }
  });
+ /// bép chế biến
+ socket.on('update-status-order', function(param){
+    console.log(param);
+    socket.join(param.id_business);
+    var data2 = { detect: 'table_order', id_order: param.id_order};
+    var room = param.id_business;
+    console.log(param);
+      axios.post(url, data2, { headers,
+      }).then((res) => {
+        var a= [];
+        let list = {table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+        list.table_order.push(res.data.data[0]);
+    //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
+      console.log(list);
+      io.in(room).emit('reloaded-table-detail',list);
+      }).catch((error) => {
+    }); 
+    //////bếp 
+      if(param.type_manager == 'eat-in')
+      {
+        var data3 = { detect: 'list_chef_order', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+        axios.post(url, data3, { headers,
+        }).then((res) => {
+        if(res.data.data == '')
+        {
+        data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
+        console.log(data_send);
+        io.in(room).emit('reloaded-order-eat-in',data_send); 
+        }else{
+        console.log(res.data.data[0]);
+        //res.data.type = param.type_prosessing;
+        io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);}
+        }).catch((error) => {
+        });
+      }else{
+        var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+        axios.post(url, data3, { headers,
+        }).then((res) => {
+          if(res.data.data == '')
+          {
+          data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
+          console.log(data_send);
+          io.in(room).emit('reloaded-order-carry-out',data_send); 
+          }else{
+        console.log(res.data.data[0]);
+      //  res.data.type = param.type_prosessing;
+        io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);}
+        }).catch((error) => {
+        });  
+      }
+});
+// đóng bàn
+socket.on('close-table', function(param){
+  console.log(param);
+    socket.join(param.id_business);
+    var data2 = { detect: 'table_order', id_order: param.id_order};
+    var room = param.id_business;
+    console.log(param);
+      axios.post(url, data2, { headers,
+      }).then((res) => {
+        var a= [];
+        let list = {type_reload:'close_table', table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+        list.table_order.push(res.data.data[0]);
+    //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
+      console.log(list);
+      io.in(room).emit('reloaded-table-detail',list);
+      }).catch((error) => {
+    }); 
+  });
+//hoàn thành món 8-0
+socket.on('remove-chef-order', function(param){
+  console.log(param);
+  socket.join(param.id_business);
+  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var room = param.id_business;
+  console.log(param);
+    axios.post(url, data2, { headers,
+    }).then((res) => {
+      var a= [];
+      let list = {table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+      list.table_order.push(res.data.data[0]);
+  //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
+    console.log(list);
+    io.in(room).emit('reloaded-table-detail',list);
+    }).catch((error) => {
+  }); 
+  //////bếp  
+    if(param.type_manager == 'eat-in')
+    {
+     data_send = {message:"remove order", id_order:param.id_order}
+      io.in(room).emit('removed-chef-order',data_send);
 
-///khách hủy món
+    }else{
+      data_send = {message:"remove order", id_order:param.id_order}
+      io.in(room).emit('removed-chef-order',data_send);
+ 
+    }
+});
+// khách hủy món
 socket.on('customer-cancel-product',function(param){
   console.log(param);
   socket.join(param.id_business);
@@ -98,7 +193,7 @@ socket.on('customer-cancel-product',function(param){
       }).then((res) => {
       console.log(res.data);
       res.data.type = "update";
-      io.in(room).emit('list-ordered-eat-in',res.data);;
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
@@ -107,14 +202,14 @@ socket.on('customer-cancel-product',function(param){
       }).then((res) => {
       console.log(res.data);
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-carry-out',res.data);;
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
     }
 });
 
 // bếp hủy món
-socket.on(' chef-cancel-product',function(param){
+socket.on('chef-cancel-product',function(param){
   console.log(param);
   socket.join(param.id_business);
   var data2 = { detect: 'table_order', id_order: param.id_order};
@@ -134,18 +229,18 @@ socket.on(' chef-cancel-product',function(param){
       var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data);
-      res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-eat-in',res.data);;
+      console.log(res.data.data[0]);
+     // res.data.type = param.type_prosessing;
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
       var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data);
+      console.log(res.data.data[0]);
 
-      io.in(room).emit('list-ordered-carry-out',res.data);
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
     }
@@ -174,7 +269,7 @@ socket.on('update-quantity-order',function(param){
       }).then((res) => {
       console.log(res.data);
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-eat-in',res.data);
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
@@ -183,7 +278,7 @@ socket.on('update-quantity-order',function(param){
       }).then((res) => {
       console.log(res.data);
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-carry-out',res.data);
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
     }
@@ -211,7 +306,7 @@ socket.on('update-product-order',function(param){
       axios.post(url, data3, { headers,
       }).then((res) => {
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-eat-in',res.data);
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
@@ -219,13 +314,13 @@ socket.on('update-product-order',function(param){
       axios.post(url, data3, { headers,
       }).then((res) => {
       res.data.type = param.type_prosessing;
-      io.in(room).emit('list-ordered-carry-out',res.data);
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
     }
 });
 
-// enable - disable product
+/// chuyển bàn
 socket.on('change-table',function(param){
   socket.join(param.id_business);
   var data2 = { detect: 'table_order', id_order: param.id_order};
@@ -255,26 +350,43 @@ socket.on('change-table',function(param){
   io.in(room).emit('changed-table',data_table);
   }).catch((error) => {
 }); 
-
-
-  
-
-
-  
-
     var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
     axios.post(url, data3, { headers,
     }).then((res) => {
     res.data.type = param.type_prosessing;
-    io.in(room).emit('list-ordered-eat-in',res.data);
+    io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
     }).catch((error) => {
     });
 
 
 });
+// disable product
+socket.on('disable-product',function(param){  
+  console.log(param);
+  socket.join(param.id_business);
+  var room = param.id_business;
+  param = {message:"reloaded product"};
+  io.in(room).emit('reloaded-product',param);
+});
 
-
-
+// đóng bàn
+socket.on('close-table',function(param)
+{
+  socket.join(param.id_business);
+  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var room = param.id_business;
+  console.log(param);
+    axios.post(url, data2, { headers,
+    }).then((res) => {
+      var a= [];
+      let list = {type_reload:'close-table', table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+      list.table_order.push(res.data.data[0]);
+  //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
+    console.log(list);
+    io.in(room).emit('closed-table',list);
+    }).catch((error) => {
+  });  
+});
 
 
 

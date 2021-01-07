@@ -15,7 +15,16 @@ $(document).ready(function() {
 });
 function open_table()
 {  
-    var data = { id_business: '1', id_floor: '2', id_order: '92', id_table: '5' }
+    var data = { 
+            id_floor: '3',
+            id_business: '1',
+            id_order: '131',
+            type_manager: 'eat-in',
+            table_status: 'full',
+            table_title: 'Bàn 7',
+            id_table: '28'
+      }
+      
 
     socket.emit('reload-table-detail',data);
 }
@@ -29,11 +38,11 @@ socket.on("connected", function(data)
 });
 
 
-socket.on('list-ordered-eat-in',function(data){
+socket.on('reloaded-order-eat-in',function(data){
     console.log('tại bàn');
     console.log(data);
 });
-socket.on('list-ordered-carry-out',function(data){
+socket.on('reloaded-order-carry-out',function(data){
     console.log('mang đi');
     console.log(data);
 });
