@@ -13,31 +13,33 @@ $(document).ready(function() {
    socket.emit('join-store',a);
   
 });
+socket.on('ketnoi',function(data){
+console.log(data);
+});
 function open_table()
 {  
     var data = { 
-            id_floor: '3',
-            id_business: '1',
-            id_order: '131',
+        
+            id_product: '15',
             type_manager: 'eat-in',
+            table_title: 'Bàn 9',
+            id_floor: '4',
             table_status: 'full',
-            table_title: 'Bàn 7',
-            id_table: '28'
+            id_business: '1',
+            id_order: '201',
+            id_table: '42'
+          
+          
       }
-      
-
-    socket.emit('reload-table-detail',data);
+    socket.emit('disable-product',data);
 }
-socket.on('reloaded-table-detail',function(data)
-{
+socket.on('reloaded-product',function(data){
 console.log(data);
 });
-socket.on("connected", function(data)
+socket.on('reloaded-table-detail',function(data)
 {
- $('#tesst').html(data);
+    console.log(data);
 });
-
-
 socket.on('reloaded-order-eat-in',function(data){
     console.log('tại bàn');
     console.log(data);
@@ -46,6 +48,13 @@ socket.on('reloaded-order-carry-out',function(data){
     console.log('mang đi');
     console.log(data);
 });
+socket.on("connected", function(data)
+{
+ $('#tesst').html(data);
+});
+
+
+
 
 function disable_product()
 {

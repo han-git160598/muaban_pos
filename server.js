@@ -25,24 +25,25 @@ const headers = {
 io.on("connection", function(socket){ 
   //setTimeout(() => socket.disconnect(true), 5000);
   console.log("ket noi "+ socket.id);
+  io.sockets.emit('ketnoi','data');
   socket.on('join-store', function(room) {
     socket.join(room.id_business);
     console.log(room.id_business);
-    io.in(room).emit("connected", 'da ket noi'+ socket.id);
  });
 
 //mở bàn và đặt món
  socket.on('reload-table-detail', function(param){
-//  console.log(param);
+ console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order', id_order: param.id_order,id_floor:param.id_floor};
   var room = param.id_business;
   console.log(param);
     axios.post(url, data2, { headers,
     }).then((res) => {
-
+     var total_off =  param.total_table_empty ;
+     var total_on =   param.total_table_full; 
       var a= [];
-      let list = {type_reload:'open_table', table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+      let list = {type_reload:'open_table',total_table_off:total_off,total_table_on: total_on ,table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
       list.table_order.push(res.data.data[0]);
   //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
     console.log(list);
@@ -71,6 +72,7 @@ io.on("connection", function(socket){
       });  
     }
  });
+
  /// bép chế biến
  socket.on('update-status-order', function(param){
     console.log(param);
@@ -116,7 +118,7 @@ io.on("connection", function(socket){
           io.in(room).emit('reloaded-order-carry-out',data_send); 
           }else{
         console.log(res.data.data[0]);
-      //  res.data.type = param.type_prosessing;
+        res.data.type = param.type_prosessing;
         io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);}
         }).catch((error) => {
         });  
@@ -126,13 +128,15 @@ io.on("connection", function(socket){
 socket.on('close-table', function(param){
   console.log(param);
     socket.join(param.id_business);
-    var data2 = { detect: 'table_order', id_order: param.id_order};
+    var data2 = { detect: 'table_order', id_order: param.id_order,id_floor:param.id_floor};
     var room = param.id_business;
     console.log(param);
       axios.post(url, data2, { headers,
       }).then((res) => {
         var a= [];
-        let list = {type_reload:'close_table', table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+        var total_off =  param.total_table_empty ;
+        var total_on =   param.total_table_full; 
+        let list = {type_reload:'close_table',total_table_off:total_off,total_table_on: total_on, table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
         list.table_order.push(res.data.data[0]);
     //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
       console.log(list);
@@ -160,11 +164,11 @@ socket.on('remove-chef-order', function(param){
   //////bếp  
     if(param.type_manager == 'eat-in')
     {
-     data_send = {message:"remove order", id_order:param.id_order}
+     data_send = {message:"remove_order", id_order:param.id_order}
       io.in(room).emit('removed-chef-order',data_send);
 
     }else{
-      data_send = {message:"remove order", id_order:param.id_order}
+      data_send = {message:"remove_order", id_order:param.id_order}
       io.in(room).emit('removed-chef-order',data_send);
  
     }
@@ -230,7 +234,7 @@ socket.on('chef-cancel-product',function(param){
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data.data[0]);
-     // res.data.type = param.type_prosessing;
+      res.data.type = param.type_prosessing;
       io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
@@ -239,7 +243,7 @@ socket.on('chef-cancel-product',function(param){
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data.data[0]);
-
+      res.data.type = param.type_prosessing;
       io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
@@ -360,13 +364,49 @@ socket.on('change-table',function(param){
 
 
 });
+
+
 // disable product
 socket.on('disable-product',function(param){  
+  // androi
   console.log(param);
   socket.join(param.id_business);
   var room = param.id_business;
-  param = {message:"reloaded product"};
-  io.in(room).emit('reloaded-product',param);
+  data = {message:"reloaded product"};
+  console.log(data);
+  io.in(room).emit('reloaded-product',data);
+
+  var data2 = { detect: 'table_order', id_order: param.id_order};
+    axios.post(url, data2, { headers,
+    }).then((res) => {
+      var a= [];
+      let list = {table_status:param.table_status,table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+       list.table_order.push(res.data.data[0]);
+  //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
+    console.log(list);
+    io.in(room).emit('reloaded-table-detail',list);
+    }).catch((error) => {
+  });
+  if(param.type_manager == 'eat-in')
+    {
+      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      axios.post(url, data3, { headers,
+      }).then((res) => {
+      console.log(res.data.data[0]);
+      res.data.type = param.type_prosessing;
+      io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
+      }).catch((error) => {
+      });
+    }else{
+      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      axios.post(url, data3, { headers,
+      }).then((res) => {
+      console.log(res.data.data[0]);
+      res.data.type = param.type_prosessing;
+      io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
+      }).catch((error) => {
+      });  
+    }
 });
 
 // đóng bàn
