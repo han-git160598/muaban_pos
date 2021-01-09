@@ -397,7 +397,7 @@ socket.on('close-table', function(param){
       var a= [];
       var total_off =  res.data.data[0].total_table_empty ;
       var total_on  =   res.data.data[0].total_table_full; 
-      let list = {type_reload:'close_table',table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+      let list = {type_reload:'close_table',total_table_off:total_off,total_table_on: total_on,table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
       list.table_order.push(res.data.data[0]);
   //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
     console.log(list);
