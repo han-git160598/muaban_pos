@@ -1,4 +1,4 @@
- var socket = io("localhost:3000/");
+ var socket = io("https://muabanpos.herokuapp.com/");
 //var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
 // var socket =("localhost:3000/",
 //     {
@@ -53,7 +53,10 @@ socket.on("connected", function(data)
  $('#tesst').html(data);
 });
 
-
+socket.on('reloaded-timer',function(data)
+{
+    console.log (data);
+});
 
 
 function disable_product()
