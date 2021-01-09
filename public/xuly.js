@@ -1,4 +1,4 @@
- var socket = io("https://muabanpos.herokuapp.com/");
+ var socket = io('https://muabannhanh2.herokuapp.com');
 //var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
 // var socket =("localhost:3000/",
 //     {
