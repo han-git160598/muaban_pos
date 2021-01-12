@@ -4,6 +4,7 @@ const axios = require('axios')
 const cors = require("cors");
 const request = require('request');
 const { data } = require("jquery");
+const cron = require("node-cron"); 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "./views");
@@ -13,12 +14,12 @@ const io = require('socket.io')(server, {
     pingTimeout: 4000000,
     pingInterval: 2000,
     cors: {
-      origin: '*',
+      origin: '*',  
     }
   });
 server.listen(process.env.PORT || 3000 );
 
-const url = 'http://192.168.100.31/muaban_pos/api/'
+const url = 'https://www.muabannhanh.xyz/muabanpos/api/'
 const headers = {
     'Authorization': 'Basic YWRtaW46cXRjdGVrQDEyMwx=='
   }
@@ -34,13 +35,13 @@ io.on("connection", function(socket){
 
 //mở bàn và đặt món
  socket.on('reload-table-detail', function(param){
- console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order,id_floor:param.id_floor};
+  var data2 = { detect: 'table_order', id_order: param.id_order,id_floor:param.id_floor, id_business:param.id_business};
   var room = param.id_business;
   console.log(param);
     axios.post(url, data2, { headers,
     }).then((res) => {
+      console.log(res.data.data[0]);
      var total_off =  res.data.data[0].total_table_empty ;
      var total_on =   res.data.data[0].total_table_full; 
       var a= [];
@@ -101,7 +102,7 @@ io.on("connection", function(socket){
         }).then((res) => {
         if(res.data.data == '')
         {
-        data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
+        var data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
         console.log(data_send);
         io.in(room).emit('reloaded-order-eat-in',data_send); 
         }else{
@@ -116,7 +117,7 @@ io.on("connection", function(socket){
         }).then((res) => {
           if(res.data.data == '')
           {
-          data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
+          var data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
           console.log(data_send);
           io.in(room).emit('reloaded-order-carry-out',data_send); 
           }else{
@@ -148,11 +149,11 @@ socket.on('remove-chef-order', function(param){
   //////bếp  
     if(param.type_manager == 'eat-in')
     {
-     data_send = {message:"remove_order", id_order:param.id_order}
+     var data_send = {message:"remove_order", id_order:param.id_order}
       io.in(room).emit('removed-chef-order',data_send);
 
     }else{
-      data_send = {message:"remove_order", id_order:param.id_order}
+      var data_send = {message:"remove_order", id_order:param.id_order}
       io.in(room).emit('removed-chef-order',data_send);
  
     }
@@ -220,7 +221,7 @@ socket.on('chef-cancel-product',function(param){
     }).then((res) => {
     if(res.data.data == '')
     {
-    data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
+    var data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
     console.log(data_send);
     io.in(room).emit('reloaded-order-eat-in',data_send); 
     }else{
@@ -235,7 +236,7 @@ socket.on('chef-cancel-product',function(param){
     }).then((res) => {
       if(res.data.data == '')
       {
-      data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
+     var data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
       console.log(data_send);
       io.in(room).emit('reloaded-order-carry-out',data_send); 
       }else{
@@ -325,7 +326,7 @@ socket.on('update-product-order',function(param){
 socket.on('change-table',function(param){
   socket.join(param.id_business);
   var room = param.id_business;
-  data = {message: "reloaded_all_table"};
+  var data = {message: "reloaded_all_table"};
   io.in(room).emit('reloaded-all-table',data);
 });
 
@@ -336,7 +337,7 @@ socket.on('disable-product',function(param){
   console.log(param);
   socket.join(param.id_business);
   var room = param.id_business;
-  data = {message:"reloaded product"};
+  var data = {message:"reloaded product"};
   console.log(data);
   io.in(room).emit('reloaded-product',data);
 
@@ -358,7 +359,7 @@ socket.on('disable-product',function(param){
         }).then((res) => {
         if(res.data.data == '')
         {
-        data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
+        var data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
         console.log(data_send);
         io.in(room).emit('reloaded-order-eat-in',data_send); 
         }else{
@@ -373,7 +374,7 @@ socket.on('disable-product',function(param){
         }).then((res) => {
           if(res.data.data == '')
           {
-          data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
+          var data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
           console.log(data_send);
           io.in(room).emit('reloaded-order-carry-out',data_send); 
           }else{
@@ -412,7 +413,7 @@ socket.on('close-table', function(param){
       }).then((res) => {
       if(res.data.data == '')
       {
-      data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
+      var data_send = {message:"remove_order", id_order:param.id_order, order_type:param.type_manager};
       console.log(data_send);
       io.in(room).emit('reloaded-order-eat-in',data_send); 
       }else{
@@ -427,7 +428,7 @@ socket.on('close-table', function(param){
       }).then((res) => {
         if(res.data.data == '')
         {
-        data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
+        var data_send = {message:"remove_order", id_order:param.id_order,order_type:param.type_manager};
         console.log(data_send);
         io.in(room).emit('reloaded-order-carry-out',data_send); 
         }else{
@@ -439,7 +440,12 @@ socket.on('close-table', function(param){
     }
 });
 
-
+// cưỡng chế đăng xuất
+socket.on('force_sign_out',function(data)
+{
+  var room = data.id_business;
+  io.in(room).emit('forced_sign_out',data);
+});
  
 
 // setInterval(function() {
@@ -447,6 +453,20 @@ socket.on('close-table', function(param){
 //   console.log(data);
 // io.emit('reloaded-timer',data);
 // }, 20000); //5 seconds
+
+
+// const nDate = new Date().toLocaleString('en-US', {
+//   timeZone: 'Asia/Ho_Chi_Minh'
+// });
+
+// console.log(nDate);
+
+cron.schedule("*/5 * * * *", function() { 
+  var data = {message:'reloaded_all_table'};
+  console.log(data);
+  socket.emit('reloaded-all-table', data);
+}); 
+
 
 
 

@@ -1,4 +1,4 @@
- var socket = io('https://muabannhanh2.herokuapp.com');
+ var socket = io('https://muabannhanh2.herokuapp.com/');
 //var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
 // var socket =("localhost:3000/",
 //     {
@@ -53,10 +53,7 @@ socket.on("connected", function(data)
  $('#tesst').html(data);
 });
 
-socket.on('reloaded-timer',function(data)
-{
-    console.log (data);
-});
+
 
 
 function disable_product()
@@ -67,5 +64,8 @@ function disable_product()
 
 
 socket.on('disabled-product',function(data){
+console.log(data);
+});
+socket.on('reloaded-all-table',function(data){
 console.log(data);
 });
