@@ -11,18 +11,15 @@ app.set("views", "./views");
 
 var server = require("http").Server(app);
 const io = require('socket.io')(server, {
-    pingTimeout: 4000000,
+    pingTimeout: 43200000,
     pingInterval: 2000,
     cors: {
       origin: '*',  
     }
   });
-server.listen(process.env.PORT || 3000 );
+server.listen(process.env.PORT || 3001 );
 
-const url = 'https://www.muabannhanh.xyz/muabanpos/api/'
-const headers = {
-    'Authorization': 'Basic YWRtaW46cXRjdGVrQDEyMwx=='
-  }
+const url = 'http://192.168.100.31/muaban_pos/muabanpos_token/api/'
 
 io.on("connection", function(socket){ 
   //setTimeout(() => socket.disconnect(true), 5000);
@@ -36,16 +33,18 @@ io.on("connection", function(socket){
 //mở bàn và đặt món
  socket.on('reload-table-detail', function(param){
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order,id_floor:param.id_floor, id_business:param.id_business};
+  var data2 = { detect: 'table_order', type_socket: 'socket', id_order: param.id_order,id_floor:param.id_floor, id_business:param.id_business};
   var room = param.id_business;
+  var headers = {'Authorization':'Bearer '+param.token};
   console.log(param);
+  console.log(headers);
     axios.post(url, data2, { headers,
     }).then((res) => {
       console.log(res.data.data[0]);
      var total_off =  res.data.data[0].total_table_empty ;
      var total_on =   res.data.data[0].total_table_full; 
       var a= [];
-      let list = {type_reload:'open_table',total_table_off:total_off,total_table_on: total_on ,table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
+      let list = {type_reload:'open_table',type_socket: 'socket',total_table_off:total_off,total_table_on: total_on ,table_status:param.table_status, table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
       list.table_order.push(res.data.data[0]);
   //  res.data.data[0] = {"id_floor":param.id_floor, "id_table": param.id_table,...res.data.data[0]};
     console.log(list);
@@ -55,20 +54,24 @@ io.on("connection", function(socket){
   ///bếp  
     if(param.type_manager == 'eat-in')
     {
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      console.log('qua dc if');
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data.data[0]);
       res.data.type = param.type_prosessing;
+      console.log(res.data.data[0]);
       io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      console.log('qua dc if');
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
-      console.log(res.data.data[0]);
       res.data.type = param.type_prosessing;
+      console.log(res.data.data[0]);
       io.in(room).emit('reloaded-order-carry-out',res.data.data[0]);
       }).catch((error) => {
       });  
@@ -79,8 +82,9 @@ io.on("connection", function(socket){
  socket.on('update-status-order', function(param){
     console.log(param);
     socket.join(param.id_business); 
-    var data2 = { detect: 'table_order', id_order: param.id_order, id_floor:param.id_floor};
+    var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order, id_floor:param.id_floor};
     var room = param.id_business;
+    var headers = {'Authorization':'Bearer '+param.token};
     console.log(param);
       axios.post(url, data2, { headers,
       }).then((res) => {
@@ -97,7 +101,8 @@ io.on("connection", function(socket){
     //////bếp 
       if(param.type_manager == 'eat-in')
       {
-        var data3 = { detect: 'list_chef_order', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+        var data3 = { detect: 'list_chef_order',type_socket: 'socket', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+        var headers = {'Authorization':'Bearer '+param.token};
         axios.post(url, data3, { headers,
         }).then((res) => {
         if(res.data.data == '')
@@ -112,7 +117,8 @@ io.on("connection", function(socket){
         }).catch((error) => {
         });
       }else{
-        var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+        var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+        var headers = {'Authorization':'Bearer '+param.token};
         axios.post(url, data3, { headers,
         }).then((res) => {
           if(res.data.data == '')
@@ -133,9 +139,10 @@ io.on("connection", function(socket){
 socket.on('remove-chef-order', function(param){
   console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
   var room = param.id_business;
   console.log(param);
+  var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
@@ -162,8 +169,9 @@ socket.on('remove-chef-order', function(param){
 socket.on('customer-cancel-product',function(param){
   console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
   var room = param.id_business;
+  var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
@@ -177,7 +185,8 @@ socket.on('customer-cancel-product',function(param){
       // bếp
   if(param.type_manager == 'eat-in')
     {
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data);
@@ -186,7 +195,8 @@ socket.on('customer-cancel-product',function(param){
       }).catch((error) => {
       });
     }else{
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data);
@@ -201,9 +211,10 @@ socket.on('customer-cancel-product',function(param){
 socket.on('chef-cancel-product',function(param){
   console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
   var room = param.id_business;
-    axios.post(url, data2, { headers,
+  var headers = {'Authorization':'Bearer '+param.token};
+  axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
       let list = {table_status:param.table_status,table_title:param.table_title, id_floor: param.id_floor, id_order: param.id_order, id_table: param.id_table,...res.data.data[0], table_order: a };
@@ -216,7 +227,8 @@ socket.on('chef-cancel-product',function(param){
   
   if(param.type_manager == 'eat-in')
   {
-    var data3 = { detect: 'list_chef_order', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+    var data3 = { detect: 'list_chef_order',type_socket: 'socket', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+    var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data3, { headers,
     }).then((res) => {
     if(res.data.data == '')
@@ -231,7 +243,8 @@ socket.on('chef-cancel-product',function(param){
     }).catch((error) => {
     });
   }else{
-    var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+    var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+    var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data3, { headers,
     }).then((res) => {
       if(res.data.data == '')
@@ -252,8 +265,9 @@ socket.on('chef-cancel-product',function(param){
 socket.on('update-quantity-order',function(param){
   console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
   var room = param.id_business;
+  var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
@@ -266,7 +280,8 @@ socket.on('update-quantity-order',function(param){
   }); 
   if(param.type_manager == 'eat-in')
     {
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data);
@@ -275,7 +290,8 @@ socket.on('update-quantity-order',function(param){
       }).catch((error) => {
       });
     }else{
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       console.log(res.data);
@@ -289,7 +305,8 @@ socket.on('update-quantity-order',function(param){
 socket.on('update-product-order',function(param){
   console.log(param);
   socket.join(param.id_business);
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
+  var headers = {'Authorization':'Bearer '+param.token};
   var room = param.id_business;
     axios.post(url, data2, { headers,
     }).then((res) => {
@@ -304,15 +321,18 @@ socket.on('update-product-order',function(param){
   }); 
   if(param.type_manager == 'eat-in')
     {
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       res.data.type = param.type_prosessing;
+      console.log(res.data.data[0]);
       io.in(room).emit('reloaded-order-eat-in',res.data.data[0]);
       }).catch((error) => {
       });
     }else{
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       res.data.type = param.type_prosessing;
@@ -340,8 +360,8 @@ socket.on('disable-product',function(param){
   var data = {message:"reloaded product"};
   console.log(data);
   io.in(room).emit('reloaded-product',data);
-
-  var data2 = { detect: 'table_order', id_order: param.id_order};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order};
+  var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
@@ -354,7 +374,8 @@ socket.on('disable-product',function(param){
   });
   if(param.type_manager == 'eat-in')
       {
-        var data3 = { detect: 'list_chef_order', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+        var data3 = { detect: 'list_chef_order',type_socket: 'socket', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+        var headers = {'Authorization':'Bearer '+param.token};
         axios.post(url, data3, { headers,
         }).then((res) => {
         if(res.data.data == '')
@@ -369,7 +390,8 @@ socket.on('disable-product',function(param){
         }).catch((error) => {
         });
       }else{
-        var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+        var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+        var headers = {'Authorization':'Bearer '+param.token};
         axios.post(url, data3, { headers,
         }).then((res) => {
           if(res.data.data == '')
@@ -390,9 +412,10 @@ socket.on('disable-product',function(param){
 socket.on('close-table', function(param){
   console.log(param);
   socket.join(param.id_business); 
-  var data2 = { detect: 'table_order', id_order: param.id_order, id_floor:param.id_floor};
+  var data2 = { detect: 'table_order',type_socket: 'socket', id_order: param.id_order, id_floor:param.id_floor};
   var room = param.id_business;
   console.log(param);
+  var headers = {'Authorization':'Bearer '+param.token};
     axios.post(url, data2, { headers,
     }).then((res) => {
       var a= [];
@@ -408,7 +431,8 @@ socket.on('close-table', function(param){
   //////bếp 
     if(param.type_manager == 'eat-in')
     {
-      var data3 = { detect: 'list_chef_order', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket', id_order:param.id_order, type_manager: 'eat_in', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
       if(res.data.data == '')
@@ -423,7 +447,8 @@ socket.on('close-table', function(param){
       }).catch((error) => {
       });
     }else{
-      var data3 = { detect: 'list_chef_order',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var data3 = { detect: 'list_chef_order',type_socket: 'socket',id_order:param.id_order, type_manager: 'carry_out', id_business:param.id_business };
+      var headers = {'Authorization':'Bearer '+param.token};
       axios.post(url, data3, { headers,
       }).then((res) => {
         if(res.data.data == '')
@@ -444,6 +469,8 @@ socket.on('close-table', function(param){
 socket.on('force_sign_out',function(data)
 {
   var room = data.id_business;
+  console.log(data);
+  console.log(room);
   io.in(room).emit('forced_sign_out',data);
 });
  
