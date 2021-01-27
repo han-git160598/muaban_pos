@@ -1,4 +1,4 @@
- var socket = io('192.168.100.39:3001');
+ var socket = io('https://socket.muabannhanh.xyz/');
 //var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
 // var socket =("localhost:3000/",
 //     {
@@ -13,6 +13,30 @@ $(document).ready(function() {
    socket.emit('join-store',a);
   
 });
+//var socket = io.connect();
+// console.log('check 1', socket.connected);
+// socket.on('connect', function() {
+//   console.log('check 2', socket.connected);
+//   console.log(socket.status);
+// });
+// socket.on('disconnect', function(){
+//     console.log('disconected');
+//     });
+socket.on('disconnect', (reason) => {
+    console.log('ngat serve');
+    console.log(reason);
+    if (reason === 'io server disconnect') {
+        console.log('disconnec');
+        socket.connect();
+    }
+});
+socket.on('disconnect-socket',function(data){
+    console.log('server disconnect'+ data);
+});
+socket.on('reconnect', (attemptNumber) => {
+    console.log('ket nối lại thành công');
+  });
+
 socket.on('ketnoi',function(data){
 console.log(data);
 });
@@ -67,5 +91,12 @@ socket.on('disabled-product',function(data){
 console.log(data);
 });
 socket.on('reloaded-all-table',function(data){
+console.log(data);
+});
+socket.on('forced_sign_out',function(data)
+{
+console.log(data);
+});
+socket.on('disconnect-socket',function(data){
 console.log(data);
 });
