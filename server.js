@@ -16,7 +16,7 @@ const io = require('socket.io')(server, {
       origin: '*',  
     }
   });
-server.listen(process.env.PORT || 3001 );
+server.listen(process.env.PORT || 3000 );
 
 const url = 'https://muabannhanh.xyz/api/'
 
