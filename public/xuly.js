@@ -1,4 +1,4 @@
- var socket = io('192.168.100.39:3000');
+ var socket = io('https://muaban-pos.herokuapp.com/');
 //var socket = ("localhost:3000", { transports: ['websocket'], allowUpgrades: false});
 // var socket =("localhost:3000/",
 //     {
