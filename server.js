@@ -26,6 +26,7 @@ io.on("connection", function(socket){
   io.sockets.emit('ketnoi','data');
   socket.on('join-store', function(room) {
     socket.join(room.id_business);
+      io.sockets.emit('joined-store',room);
     //console.log(room.id_business);
  });
 
