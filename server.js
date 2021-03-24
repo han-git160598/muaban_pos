@@ -501,7 +501,7 @@ socket.on('error', (error) => {
  // console.log(error);
 });
 socket.on('disconnect', (reason) => {
-  socket.emit('disconnect-socket',reason);
+  io.sockets.emit('disconnect-socket',reason);
 });
 
 
